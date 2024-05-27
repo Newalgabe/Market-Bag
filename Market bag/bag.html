@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Səbət</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f7f7f7;
+      animation: fadeIn 2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .product {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .product.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .product.remove {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .product:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .product h2 {
+      margin: 0;
+      color: #333;
+    }
+    .empty-cart {
+      font-size: 1.2em;
+      color: #666;
+    }
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .back-link:hover {
+      background-color: #45a049;
+    }
+    .remove-item {
+      background-color: #f44336;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .remove-item:hover {
+      background-color: #e53935;
+    }
+  </style>
+</head>
+<body>
+  <h1>Səbət</h1>
+  <div id="cart"></div>
+  <a href="products.html" class="back-link">Məhsullara Baxın</a>
+
+  <script>
+    const cartContainer = document.getElementById('cart');
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function removeItem(index) {
+      const item = document.querySelectorAll('.product')[index];
+      item.classList.add('remove');
+      setTimeout(() => {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        displayCartItems();
+      }, 200);
+    }
+
+    function displayCartItems() {
+      cartContainer.innerHTML = '';
+      if (cart.length > 0) {
+        cart.forEach((product, index) => {
+          const productDiv = document.createElement('div');
+          productDiv.classList.add('product');
+          productDiv.innerHTML = `
+            <h2>${product.product_name}</h2>
+            <p>${product.product_description}</p>
+            <p>Qiymət: ${product.product_price} AZN</p>
+            <p>Mağaza: ${product.store_name}</p>
+            <p>Ünvan: ${product.store_address}</p>
+            <button class="remove-item" onclick="removeItem(${index})">Sil</button>
+          `;
+          cartContainer.appendChild(productDiv);
+        });
+        revealOnScroll();
+      } else {
+        cartContainer.innerHTML = '<p class="empty-cart">Səbət boşdur.</p>';
+      }
+    }
+
+    function revealOnScroll() {
+      const products = document.querySelectorAll('.product');
+      const revealPoint = 150;
+
+      function checkVisibility() {
+        products.forEach(product => {
+          const windowHeight = window.innerHeight;
+          const revealTop = product.getBoundingClientRect().top;
+
+          if (revealTop < windowHeight - revealPoint) {
+            product.classList.add('show');
+          } else {
+            product.classList.remove('show');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', checkVisibility);
+      checkVisibility();
+    }
+
+    document.addEventListener('DOMContentLoaded', displayCartItems);
+  </script>
+</body>
+</html>

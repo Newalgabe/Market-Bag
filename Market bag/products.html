@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Məhsullar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f7f7f7;
+      animation: fadeIn 2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .product {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .product.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .product:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .product h2 {
+      margin: 0;
+      color: #333;
+    }
+    .add-to-cart {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .add-to-cart:hover {
+      background-color: #45a049;
+    }
+    .cart-link {
+      display: block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .cart-link:hover {
+      background-color: #45a049;
+    }
+    .clear-cart {
+      display: block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .clear-cart:hover {
+      background-color: #e53935;
+    }
+    .sort-menu {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .sort-menu select {
+      padding: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Məhsullar</h1>
+  <div class="sort-menu">
+    <label for="sort">Sırala:</label>
+    <select id="sort">
+      <option value="default">Varsayılan</option>
+      <option value="price-asc">Artan Qiymət</option>
+      <option value="price-desc">Azalan Qiymət</option>
+    </select>
+  </div>
+  <div id="products"></div>
+  <a href="bag.html" class="cart-link">
+    Səbətə Baxın
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+  <a href="#" class="clear-cart" id="clear-cart">Səbəti Təmizlə</a>
+
+  <script>
+    const products = [
+      { product_name: "Kişi köynəyi", product_description: "Mavi rəngdə, 100% pamuk", product_price: 50, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Qadın bluzası", product_description: "Dəri detallı, qara rəngdə", product_price: 60, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Kişi pantolonu", product_description: "Qəhvəyi rəng, kənar cebi", product_price: 75, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Qadın eteyi", product_description: "Qırmızı rəng, mini", product_price: 40, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Kişi dəsmalı", product_description: "Nəqşdar dizayn", product_price: 20, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Qadın çantası", product_description: "Əlgötürən, dəri", product_price: 90, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Kişi botları", product_description: "Qış üçün, suya davamlı", product_price: 120, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Qadın ayaqqabıları", product_description: "Yüksək tapan, lacivərt", product_price: 85, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Kişi saatı", product_description: "Klassik dizayn, dəri qayış", product_price: 150, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+      { product_name: "Qadın saatı", product_description: "Rəngli qayış, digital", product_price: 70, store_name: "Moda Dünyası", store_address: "Bakı şəhəri, Nizami kuçəsi 5" },
+    ];
+
+    const productContainer = document.getElementById('products');
+    const cartCount = document.getElementById('cart-count');
+
+    function addToCart(product) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.push(product);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      cartCount.textContent = cart.length;
+    }
+
+    function clearCart() {
+      localStorage.removeItem('cart');
+      cartCount.textContent = 0;
+      displayProducts(products);
+    }
+
+    function displayProducts(products) {
+      productContainer.innerHTML = '';
+      products.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product');
+        productDiv.innerHTML = `
+          <h2>${product.product_name}</h2>
+          <p>${product.product_description}</p>
+          <p>Qiymət: ${product.product_price} AZN</p>
+          <p>Mağaza: ${product.store_name}</p>
+          <p>Ünvan: ${product.store_address}</p>
+          <button class="add-to-cart">Səbətə əlavə et</button>
+        `;
+        productDiv.querySelector('.add-to-cart').addEventListener('click', () => addToCart(product));
+        productContainer.appendChild(productDiv);
+      });
+      revealOnScroll();
+    }
+
+    function revealOnScroll() {
+      const products = document.querySelectorAll('.product');
+      const revealPoint = 150;
+
+      function checkVisibility() {
+        products.forEach(product => {
+          const windowHeight = window.innerHeight;
+          const revealTop = product.getBoundingClientRect().top;
+
+          if (revealTop < windowHeight - revealPoint) {
+            product.classList.add('show');
+          } else {
+            product.classList.remove('show');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', checkVisibility);
+      checkVisibility();
+    }
+
+    function sortProducts(criteria) {
+      let sortedProducts = [...products];
+      if (criteria === 'price-asc') {
+        sortedProducts.sort((a, b) => a.product_price - b.product_price);
+      } else if (criteria === 'price-desc') {
+        sortedProducts.sort((a, b) => b.product_price - a.product_price);
+      }
+      displayProducts(sortedProducts);
+    }
+
+    document.getElementById('sort').addEventListener('change', (event) => {
+      sortProducts(event.target.value);
+    });
+
+    document.getElementById('clear-cart').addEventListener('click', clearCart);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cartCount.textContent = cart.length;
+      displayProducts(products);
+    });
+  </script>
+</body>
+</html>
